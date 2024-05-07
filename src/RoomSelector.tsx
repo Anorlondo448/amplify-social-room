@@ -1,6 +1,9 @@
-import { Schema } from "../amplify/data/resource"
+import { type Schema } from "../amplify/data/resource";
+import { generateClient } from "aws-amplify/data";
 import { defaultRoom } from "./utils";
 import { useEffect, useState } from "react";
+
+const client = generateClient<Schema>();
 
 export function RoomSelector({
   currentRoomId,
@@ -14,6 +17,12 @@ export function RoomSelector({
   
   useEffect(() => {
     // Add observeQuery code here
+    const sub = client.models.Room.observeQuery().subscribe({
+      next: (data) => {
+        setRooms([defaultRoom, ...data.items])
+      }
+    })
+    return () => sub.unsubscribe()
   }, [])
 
   return <>
